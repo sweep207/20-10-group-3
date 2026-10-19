@@ -469,6 +469,7 @@
       </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
       const CFG = {
         l1: "CHÚC MỪNG 20/10",
@@ -743,6 +744,40 @@
         document.body.appendChild(t);
         setTimeout(() => t.remove(), 1100);
       });
+
+      // Add the Supabase Publishable key from Project Settings > API Keys.
+      const SUPABASE_URL = "https://qssgctzdlzslgwhtcfxu.supabase.co";
+      const SUPABASE_KEY = "PASTE_SB_PUBLISHABLE_KEY_HERE";
+      const form = $("wish-form"), status = $("wish-status"), list = $("wish-list");
+      let db = null;
+      if (window.supabase && SUPABASE_KEY !== "PASTE_SB_PUBLISHABLE_KEY_HERE") {
+        db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
+      async function loadWishes() {
+        if (!db) { list.textContent = "Cần cấu hình Publishable key Supabase để bật lời chúc chung."; return; }
+        const { data, error } = await db.from("wishes").select("sender_name,message,created_at").eq("status","approved").order("created_at",{ascending:false}).limit(100);
+        if (error) { list.textContent = "Không tải được lời chúc. Kiểm tra Data API, quyền bảng và RLS."; return; }
+        list.replaceChildren();
+        if (!data.length) { list.textContent = "Chưa có lời chúc công khai. Hãy gửi lời chúc đầu tiên nhé!"; return; }
+        data.forEach(row => {
+          const item = document.createElement("article"), name = document.createElement("strong"), msg = document.createElement("p");
+          name.textContent = row.sender_name; msg.textContent = row.message;
+          item.append(name,msg); list.appendChild(item);
+        });
+      }
+      form.addEventListener("submit", async event => {
+        event.preventDefault();
+        if (!db) { status.textContent = "Chưa cấu hình Publishable key Supabase."; return; }
+        const sender_name = $("wish-name").value.trim(), message = $("wish-message").value.trim();
+        if (!sender_name || !message) return;
+        const button = form.querySelector("button"); button.disabled = true; status.textContent = "Đang gửi...";
+        const { error } = await db.from("wishes").insert([{ sender_name, message, status: "pending" }]);
+        button.disabled = false;
+        if (error) { status.textContent = "Gửi thất bại. Kiểm tra quyền INSERT/RLS trong Supabase."; return; }
+        form.reset(); status.textContent = "Đã gửi! Lời chúc sẽ xuất hiện sau khi được duyệt 💗"; await loadWishes();
+      });
+      loadWishes();
+
       document.addEventListener("mouseleave", () => (cur.style.opacity = 0));
       $("card").addEventListener("click", (e) => {
         if (e.target.tagName !== "BUTTON") {
