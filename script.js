@@ -298,7 +298,7 @@ const CFG = {
         const sender_name = $("wish-name").value.trim(), message = $("wish-message").value.trim();
         if (!sender_name || !message) return;
         const button = form.querySelector("button"); button.disabled = true; status.textContent = "Đang gửi...";
-        const { error } = await db.from("wishes").insert([{ sender_name, message, status: "pending" }]);
+        const { error } = await db.from("wishes").insert([{ sender_name, message }]);
         button.disabled = false;
         if (error) { status.textContent = "Gửi thất bại. Kiểm tra quyền INSERT/RLS trong Supabase."; return; }
         form.reset(); status.textContent = "Đã gửi! Lời chúc sẽ xuất hiện sau khi được duyệt 💗"; await loadWishes();
