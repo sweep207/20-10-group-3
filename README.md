@@ -8,7 +8,6 @@ Website tĩnh dành cho lời chúc Ngày Phụ nữ Việt Nam 20/10, tối ưu
 - `styles.css` — toàn bộ giao diện, hiệu ứng và bố cục responsive.
 - `script.js` — hiệu ứng tương tác và tích hợp Supabase.
 - `SUPABASE_SETUP.md` — hướng dẫn cấu hình bảng, RLS và duyệt lời chúc.
-- `.nojekyll` — giúp GitHub Pages phục vụ tệp tĩnh trực tiếp.
 
 ## Chạy thử
 
